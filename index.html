@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #text-display {
+            font-size: 1.2em;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            min-height: 100px;
+        }
+        #text-input {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        #results {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+            text-decoration: underline;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Typing Speed Test</h1>
+    <p>Type the text below as quickly and accurately as possible. The test will begin when you start typing.</p>
+    
+    <div id="text-display"></div>
+    <textarea id="text-input" placeholder="Start typing here..."></textarea>
+    
+    <div id="results">
+        <p>Time: <span id="time">0</span>s</p>
+        <p>Speed: <span id="wpm">0</span> WPM</p>
+        <p>Accuracy: <span id="accuracy">0</span>%</p>
+    </div>
+    
+    <button id="reset-btn">Reset Test</button>
+    
+    <script>
+        // Sample texts for typing test
+        const sampleTexts = [
+            "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet.",
+            "Programming is the process of creating a set of instructions that tell a computer how to perform a task.",
+            "To be or not to be, that is the question. Whether 'tis nobler in the mind to suffer the slings and arrows of outrageous fortune.",
+            "The greatest glory in living lies not in never falling, but in rising every time we fall. - Nelson Mandela",
+            "Success is not final, failure is not fatal: It is the courage to continue that counts. - Winston Churchill"
+        ];
+        
+        // DOM elements
+        const textDisplay = document.getElementById('text-display');
+        const textInput = document.getElementById('text-input');
+        const timeElement = document.getElementById('time');
+        const wpmElement = document.getElementById('wpm');
+        const accuracyElement = document.getElementById('accuracy');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // Variables
+        let startTime;
+        let timer;
+        let currentText = '';
+        let testActive = false;
+        
+        // Initialize the test
+        function initTest() {
+            // Select a random text
+            currentText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+            textDisplay.innerHTML = '';
+            
+            // Display the text character by character
+            for (let i = 0; i < currentText.length; i++) {
+                const span = document.createElement('span');
+                span.textContent = currentText[i];
+                span.id = 'char-' + i;
+                textDisplay.appendChild(span);
+            }
+            
+            // Reset input and results
+            textInput.value = '';
+            timeElement.textContent = '0';
+            wpmElement.textContent = '0';
+            accuracyElement.textContent = '0';
+            testActive = false;
+            
+            // Highlight first character
+            document.getElementById('char-0').classList.add('highlight');
+        }
+        
+        // Start the test when user begins typing
+        textInput.addEventListener('input', function(e) {
+            if (!testActive) {
+                startTest();
+            }
+            checkTyping();
+        });
+        
+        // Start the test timer
+        function startTest() {
+            testActive = true;
+            startTime = new Date();
+            timer = setInterval(updateTimer, 100);
+        }
+        
+        // Update the timer
+        function updateTimer() {
+            const currentTime = new Date();
+            const elapsedTime = (currentTime - startTime) / 1000; // in seconds
+            timeElement.textContent = elapsedTime.toFixed(1);
+            
+            // Calculate WPM (5 characters = 1 word)
+            const typedChars = textInput.value.length;
+            const words = typedChars / 5;
+            const minutes = elapsedTime / 60;
+            const wpm = Math.round(words / minutes) || 0;
+            wpmElement.textContent = wpm;
+        }
+        
+        // Check typing accuracy
+        function checkTyping() {
+            const typedText = textInput.value;
+            let correctChars = 0;
+            
+            // Reset all character styles
+            for (let i = 0; i < currentText.length; i++) {
+                const charElement = document.getElementById('char-' + i);
+                charElement.classList.remove('correct', 'incorrect', 'highlight');
+            }
+            
+            // Check each character
+            for (let i = 0; i < typedText.length; i++) {
+                const charElement = document.getElementById('char-' + i);
+                if (charElement) {
+                    if (typedText[i] === currentText[i]) {
+                        charElement.classList.add('correct');
+                        correctChars++;
+                    } else {
+                        charElement.classList.add('incorrect');
+                    }
+                }
+            }
+            
+            // Highlight next character
+            if (typedText.length < currentText.length) {
+                document.getElementById('char-' + typedText.length).classList.add('highlight');
+            }
+            
+            // Calculate accuracy
+            const accuracy = typedText.length > 0 ? Math.round((correctChars / typedText.length) * 100) : 0;
+            accuracyElement.textContent = accuracy;
+            
+            // End test if all text is typed
+            if (typedText.length === currentText.length) {
+                clearInterval(timer);
+                testActive = false;
+            }
+        }
+        
+        // Reset button
+        resetBtn.addEventListener('click', initTest);
+        
+        // Initialize on page load
+        initTest();
+    </script>
+</body>
+</html>
