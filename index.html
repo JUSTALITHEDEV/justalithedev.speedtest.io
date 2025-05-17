@@ -6,80 +6,251 @@
     <title>Typing Speed Test</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             text-align: center;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
         }
         #text-display {
             font-size: 1.2em;
             margin: 20px 0;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            min-height: 100px;
+            padding: 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            background-color: white;
+            min-height: 120px;
+            line-height: 1.6;
+            text-align: left;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         #text-input {
             width: 100%;
-            height: 100px;
-            padding: 10px;
+            height: 120px;
+            padding: 15px;
             font-size: 1em;
             margin-bottom: 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            resize: none;
+            transition: border-color 0.3s;
+        }
+        #text-input:focus {
+            outline: none;
+            border-color: #3498db;
         }
         #results {
-            font-size: 1.5em;
-            margin: 20px 0;
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .result-box {
+            text-align: center;
+        }
+        .result-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .result-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
         }
         .highlight {
-            background-color: yellow;
+            background-color: #ffeaa7;
+            border-radius: 2px;
         }
         .correct {
-            color: green;
+            color: #27ae60;
         }
         .incorrect {
-            color: red;
+            color: #e74c3c;
             text-decoration: underline;
         }
         button {
-            padding: 10px 20px;
+            padding: 12px 25px;
             font-size: 1em;
-            background-color: #4CAF50;
+            background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .difficulty-selector {
+            margin: 20px 0;
+        }
+        .difficulty-btn {
+            padding: 8px 15px;
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+        }
+        .difficulty-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* HELAL Stamp Styles */
+        .helal-stamp {
+            display: inline-block;
+            background: #2c3e50;
+            border-radius: 6px;
+            padding: 6px 12px 6px 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            margin-top: 30px;
+        }
+        .helal-stamp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .stamp-inner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stamp-text {
+            color: #bdc3c7;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .helal-logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .helal-logo span {
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .logo-container {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
     <h1>Typing Speed Test</h1>
-    <p>Type the text below as quickly and accurately as possible. The test will begin when you start typing.</p>
+    <p class="subtitle">Measure your typing speed in words per minute (WPM) and accuracy</p>
+    
+    <div class="difficulty-selector">
+        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+    </div>
     
     <div id="text-display"></div>
-    <textarea id="text-input" placeholder="Start typing here..."></textarea>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <textarea id="text-input" placeholder="Start typing here to begin the test..." autofocus></textarea>
     
     <div id="results">
-        <p>Time: <span id="time">0</span>s</p>
-        <p>Speed: <span id="wpm">0</span> WPM</p>
-        <p>Accuracy: <span id="accuracy">0</span>%</p>
+        <div class="result-box">
+            <div class="result-value" id="wpm">0</div>
+            <div class="result-label">WPM</div>
+        </div>
+        <div class="result-box">
+            <div class="result-value" id="accuracy">0</div>
+            <div class="result-label">Accuracy</div>
+        </div>
+        <div class="result-box">
+            <div class="result-value" id="time">0</div>
+            <div class="result-label">Seconds</div>
+        </div>
     </div>
     
     <button id="reset-btn">Reset Test</button>
+    <button id="new-text-btn">New Text</button>
+    
+    <div class="helal-stamp">
+        <div class="stamp-inner">
+            <span class="stamp-text">Made by</span>
+            <div class="helal-logo">
+                <div class="logo-container">
+                    <a href="https://justalithedev.github.io/justalithedev.helal.io/helal-website/index.html">
+                        <img src="Helal_logo.png" alt="HELAL logo">
+                    </a>
+                </div>
+                <span>HELAL</span>
+            </div>
+        </div>
+    </div>
     
     <script>
-        // Sample texts for typing test
-        const sampleTexts = [
-            "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet.",
-            "Programming is the process of creating a set of instructions that tell a computer how to perform a task.",
-            "To be or not to be, that is the question. Whether 'tis nobler in the mind to suffer the slings and arrows of outrageous fortune.",
-            "The greatest glory in living lies not in never falling, but in rising every time we fall. - Nelson Mandela",
-            "Success is not final, failure is not fatal: It is the courage to continue that counts. - Winston Churchill"
-        ];
+        // Sample texts for typing test with difficulty levels
+        const sampleTexts = {
+            easy: [
+                "The quick brown fox jumps over the lazy dog. This sentence contains all the letters in the English alphabet.",
+                "Learning to type quickly and accurately is an important skill in today's digital world.",
+                "Practice makes perfect. The more you type, the better you will become at typing without looking at the keyboard.",
+                "Typing is the process of writing or inputting text by pressing keys on a typewriter, computer keyboard, or touchscreen."
+            ],
+            medium: [
+                "Programming is the process of creating a set of instructions that tell a computer how to perform a task. Programming can be done using many different languages.",
+                "The Internet is a global network of computers that works much like the postal system, only at sub-second speeds. Just as you address a letter to send through the mail.",
+                "Artificial intelligence is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction.",
+                "To be or not to be, that is the question. Whether 'tis nobler in the mind to suffer the slings and arrows of outrageous fortune, or to take arms against a sea of troubles."
+            ],
+            hard: [
+                "The greatest glory in living lies not in never falling, but in rising every time we fall. - Nelson Mandela. Success is not final, failure is not fatal: It is the courage to continue that counts. - Winston Churchill",
+                "Quantum computing is the use of quantum-mechanical phenomena such as superposition and entanglement to perform computation. Quantum computers are believed to be able to solve certain computational problems substantially faster than classical computers.",
+                "The Byzantine Generals Problem is a classic problem in computer science that illustrates the difficulties of achieving consensus in distributed systems when components may fail and there is imperfect information about which components have failed.",
+                "In cryptography, a zero-knowledge proof or zero-knowledge protocol is a method by which one party (the prover) can prove to another party (the verifier) that a statement is true, without conveying any information apart from the fact that the statement is indeed true."
+            ]
+        };
         
         // DOM elements
         const textDisplay = document.getElementById('text-display');
@@ -88,17 +259,23 @@
         const wpmElement = document.getElementById('wpm');
         const accuracyElement = document.getElementById('accuracy');
         const resetBtn = document.getElementById('reset-btn');
+        const newTextBtn = document.getElementById('new-text-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
         
         // Variables
         let startTime;
         let timer;
         let currentText = '';
         let testActive = false;
+        let currentDifficulty = 'easy';
+        let totalCorrectChars = 0;
         
         // Initialize the test
         function initTest() {
-            // Select a random text
-            currentText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+            // Select a random text based on difficulty
+            const texts = sampleTexts[currentDifficulty];
+            currentText = texts[Math.floor(Math.random() * texts.length)];
             textDisplay.innerHTML = '';
             
             // Display the text character by character
@@ -114,15 +291,20 @@
             timeElement.textContent = '0';
             wpmElement.textContent = '0';
             accuracyElement.textContent = '0';
+            progressBar.style.width = '0%';
             testActive = false;
+            totalCorrectChars = 0;
             
             // Highlight first character
             document.getElementById('char-0').classList.add('highlight');
+            
+            // Focus on input
+            textInput.focus();
         }
         
         // Start the test when user begins typing
         textInput.addEventListener('input', function(e) {
-            if (!testActive) {
+            if (!testActive && textInput.value.length > 0) {
                 startTest();
             }
             checkTyping();
@@ -139,7 +321,7 @@
         function updateTimer() {
             const currentTime = new Date();
             const elapsedTime = (currentTime - startTime) / 1000; // in seconds
-            timeElement.textContent = elapsedTime.toFixed(1);
+            timeElement.textContent = Math.floor(elapsedTime);
             
             // Calculate WPM (5 characters = 1 word)
             const typedChars = textInput.value.length;
@@ -147,26 +329,32 @@
             const minutes = elapsedTime / 60;
             const wpm = Math.round(words / minutes) || 0;
             wpmElement.textContent = wpm;
+            
+            // Update progress bar
+            const progress = (typedChars / currentText.length) * 100;
+            progressBar.style.width = `${progress}%`;
         }
         
         // Check typing accuracy
         function checkTyping() {
             const typedText = textInput.value;
-            let correctChars = 0;
             
             // Reset all character styles
             for (let i = 0; i < currentText.length; i++) {
                 const charElement = document.getElementById('char-' + i);
-                charElement.classList.remove('correct', 'incorrect', 'highlight');
+                if (charElement) {
+                    charElement.classList.remove('correct', 'incorrect', 'highlight');
+                }
             }
             
             // Check each character
+            totalCorrectChars = 0;
             for (let i = 0; i < typedText.length; i++) {
                 const charElement = document.getElementById('char-' + i);
                 if (charElement) {
                     if (typedText[i] === currentText[i]) {
                         charElement.classList.add('correct');
-                        correctChars++;
+                        totalCorrectChars++;
                     } else {
                         charElement.classList.add('incorrect');
                     }
@@ -175,22 +363,52 @@
             
             // Highlight next character
             if (typedText.length < currentText.length) {
-                document.getElementById('char-' + typedText.length).classList.add('highlight');
+                const nextCharElement = document.getElementById('char-' + typedText.length);
+                if (nextCharElement) {
+                    nextCharElement.classList.add('highlight');
+                }
             }
             
             // Calculate accuracy
-            const accuracy = typedText.length > 0 ? Math.round((correctChars / typedText.length) * 100) : 0;
+            const accuracy = typedText.length > 0 ? Math.round((totalCorrectChars / typedText.length) * 100) : 0;
             accuracyElement.textContent = accuracy;
             
             // End test if all text is typed
             if (typedText.length === currentText.length) {
                 clearInterval(timer);
                 testActive = false;
+                showFinalResults();
+            }
+        }
+        
+        // Show final results when test is completed
+        function showFinalResults() {
+            const time = parseInt(timeElement.textContent);
+            const wpm = parseInt(wpmElement.textContent);
+            const accuracy = parseInt(accuracyElement.textContent);
+            
+            // You could add additional celebration or result display here
+            // For example:
+            if (wpm > 60 && accuracy > 95) {
+                textDisplay.innerHTML += `<div style="margin-top: 20px; color: #27ae60; font-weight: bold;">Excellent typing speed and accuracy!</div>`;
             }
         }
         
         // Reset button
         resetBtn.addEventListener('click', initTest);
+        
+        // New text button
+        newTextBtn.addEventListener('click', initTest);
+        
+        // Difficulty selector
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                difficultyBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentDifficulty = this.dataset.difficulty;
+                initTest();
+            });
+        });
         
         // Initialize on page load
         initTest();
